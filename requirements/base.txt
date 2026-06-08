@@ -1,0 +1,24 @@
+# API
+fastapi
+uvicorn[standard]
+
+# Database
+sqlalchemy>=2.0
+alembic
+psycopg2-binary
+
+# Settings
+pydantic
+pydantic-settings
+python-dotenv
+
+# Async / HTTP
+httpx
+aiofiles
+
+# Background Jobs
+celery
+redis
+
+# Utilities
+python-multipart
