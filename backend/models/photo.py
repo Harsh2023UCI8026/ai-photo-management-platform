@@ -1,5 +1,4 @@
 from uuid import uuid4
-
 from sqlalchemy import String
 from sqlalchemy import Integer
 from sqlalchemy import BigInteger
@@ -8,7 +7,9 @@ from sqlalchemy import ForeignKey
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
-from backend.database.base import Base
+from database.base import Base
+from sqlalchemy import Boolean
+ 
 
 
 class Photo(Base):
@@ -47,9 +48,10 @@ class Photo(Base):
     )
 
     sha256_hash: Mapped[str] = mapped_column(
-        String(64),
-        nullable=False
-    )
+    String(64),
+    unique=True,
+    nullable=False
+   )
 
     width: Mapped[int] = mapped_column(
         Integer,
@@ -64,4 +66,32 @@ class Photo(Base):
     source_type: Mapped[str] = mapped_column(
         String(50),
         nullable=False
+    )
+
+    thumbnail_path: Mapped[str | None] = mapped_column(
+        String,
+        nullable=True
+    )
+
+
+    is_deleted: Mapped[bool] = mapped_column(
+        Boolean,
+        default=False,
+        nullable=False
+    )
+
+
+    phash: Mapped[str | None] = mapped_column(
+    String(64),
+    nullable=True
+    )
+
+    dhash: Mapped[str | None] = mapped_column(
+    String(64),
+    nullable=True
+    )
+
+    ahash: Mapped[str | None] = mapped_column(
+    String(64),
+    nullable=True
     )

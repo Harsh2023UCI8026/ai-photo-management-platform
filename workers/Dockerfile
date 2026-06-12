@@ -8,6 +8,6 @@ RUN pip install --upgrade pip
 
 RUN pip install -r requirements/base.txt
 
-COPY workers .
+COPY backend .
 
-CMD ["celery", "-A", "celery_app", "worker", "--loglevel=info"]
+CMD ["celery", "-A", "app.tasks.celery_app", "worker", "--loglevel=info"]

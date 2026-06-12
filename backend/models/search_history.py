@@ -1,8 +1,9 @@
 from uuid import uuid4
+from datetime import datetime
 
 from sqlalchemy import String
+from sqlalchemy import DateTime
 from sqlalchemy import ForeignKey
-from sqlalchemy import Float
 
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -10,9 +11,8 @@ from sqlalchemy.orm import mapped_column
 from database.base import Base
 
 
-class Category(Base):
-
-    __tablename__ = "categories"
+class SearchHistory(Base):
+    __tablename__ = "search_history"
 
     id: Mapped[str] = mapped_column(
         String,
@@ -20,18 +20,18 @@ class Category(Base):
         default=lambda: str(uuid4())
     )
 
-    photo_id: Mapped[str] = mapped_column(
+    user_id: Mapped[str] = mapped_column(
         String,
-        ForeignKey("photos.id"),
+        ForeignKey("users.id"),
         nullable=False
     )
 
-    category_name: Mapped[str] = mapped_column(
-        String(50),
+    query: Mapped[str] = mapped_column(
+        String(255),
         nullable=False
     )
 
-    confidence_score: Mapped[float] = mapped_column(
-        Float,
-        nullable=False
+    created_at: Mapped[datetime] = mapped_column(
+        DateTime,
+        default=datetime.utcnow
     )

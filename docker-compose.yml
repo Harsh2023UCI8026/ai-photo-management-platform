@@ -38,6 +38,10 @@ services:
       - postgres
       - redis
 
+    volumes:
+      - uploads_data:/app/uploads
+      - thumbnails_data:/app/thumbnails
+
   worker:
     build:
       context: .
@@ -48,5 +52,11 @@ services:
     depends_on:
       - redis
 
+    volumes:
+      - uploads_data:/app/uploads
+      - thumbnails_data:/app/thumbnails
+
 volumes:
   postgres_data:
+  uploads_data:
+  thumbnails_data:

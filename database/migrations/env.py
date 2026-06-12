@@ -1,7 +1,10 @@
 from logging.config import fileConfig
-from backend.database.base import Base
-from backend.models.user import User
-from backend.models.photo import Photo
+from database.base import Base
+from models.user import User
+from models.photo import Photo
+from models.image_embedding import ImageEmbedding
+from models.category import Category
+from models.search_index import SearchIndex
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool

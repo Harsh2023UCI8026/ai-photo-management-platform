@@ -4,7 +4,7 @@ from sqlalchemy import String
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
 
-from backend.database.base import Base
+from database.base import Base
 
 
 class User(Base):
@@ -25,5 +25,10 @@ class User(Base):
     google_id: Mapped[str] = mapped_column(
         String(255),
         unique=True,
+        nullable=True
+    )
+
+    password_hash: Mapped[str] = mapped_column(
+        String(255),
         nullable=True
     )

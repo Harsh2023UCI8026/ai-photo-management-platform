@@ -6,4 +6,4 @@ celery_app = Celery(
     backend="redis://redis:6379/0"
 )
 
-import tasks.photo_tasks
+import app.tasks.photo_tasks
