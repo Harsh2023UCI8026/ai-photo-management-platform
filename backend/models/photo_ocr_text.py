@@ -2,7 +2,9 @@ from uuid import uuid4
 
 from sqlalchemy import String
 from sqlalchemy import ForeignKey
-from sqlalchemy.dialects.postgresql import JSONB
+from sqlalchemy import DateTime
+from sqlalchemy import Text
+from sqlalchemy import func
 
 from sqlalchemy.orm import Mapped
 from sqlalchemy.orm import mapped_column
@@ -10,9 +12,9 @@ from sqlalchemy.orm import mapped_column
 from database.base import Base
 
 
-class Face(Base):
+class PhotoOCRText(Base):
 
-    __tablename__ = "faces"
+    __tablename__ = "photo_ocr_texts"
 
     id: Mapped[str] = mapped_column(
         String,
@@ -23,15 +25,17 @@ class Face(Base):
     photo_id: Mapped[str] = mapped_column(
         String,
         ForeignKey("photos.id"),
+        nullable=False,
+        unique=True
+    )
+
+    ocr_text: Mapped[str] = mapped_column(
+        Text,
         nullable=False
     )
 
-    cluster_id: Mapped[str | None] = mapped_column(
-        String,
-        nullable=True
-    )
-
-    embedding: Mapped[dict] = mapped_column(
-        JSONB,
+    created_at: Mapped[DateTime] = mapped_column(
+        DateTime,
+        server_default=func.now(),
         nullable=False
     )

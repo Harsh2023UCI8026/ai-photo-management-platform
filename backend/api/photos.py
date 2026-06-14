@@ -9,6 +9,26 @@ from app.tasks.photo_tasks import (
     generate_thumbnail
 )
 
+from services.search_suggestion_service import (
+    SearchSuggestionService
+)
+
+from repositories.face_repository import (
+    FaceRepository
+)
+
+from repositories.face_cluster_repository import (
+    FaceClusterRepository
+)
+
+from services.face_clustering_service import (
+    FaceClusteringService
+)
+
+from ai_services.face_recognition.face_service import (
+    FaceService
+)
+
 from ai_services.clip.clip_service import ClipService
 
 from services.faiss_index_service import (
@@ -17,6 +37,22 @@ from services.faiss_index_service import (
 
 from repositories.image_embedding_repository import (
     ImageEmbeddingRepository
+)
+
+from ai_services.classification.classification_service import (
+    ClassificationService
+)
+
+from repositories.category_repository import (
+    CategoryRepository
+)
+
+from ai_services.ocr.ocr_service import (
+    OCRService
+)
+
+from repositories.photo_ocr_repository import (
+    PhotoOCRRepository
 )
 
 clip_service = ClipService()
@@ -29,7 +65,20 @@ from core.photo_security import verify_photo_owner
 
 from repositories.image_embedding_repository import ImageEmbeddingRepository
 from services.semantic_search_service import SemanticSearchService
+from services.ai_search_service import (
+    AISearchService
+)
+
+from services.smart_search_service import (
+    SmartSearchService
+)
+from repositories.search_history_repository import (
+    SearchHistoryRepository
+)
 from repositories.photo_repository import PhotoRepository
+from repositories.photo_ocr_repository import (
+    PhotoOCRRepository
+)
 from ai_services.faiss.faiss_service import (
     faiss_service
 )
@@ -49,7 +98,15 @@ from database.session import get_db
 from repositories.photo_repository import PhotoRepository
 from schemas.photo import PhotoCreate
 
+from schemas.face_cluster import (
+    ClusterLabelUpdate
+)
 from services.photo_service import PhotoService
+
+
+from services.dashboard_service import (
+    DashboardService
+)
 
 from services.faiss_index_service import (
     FaissIndexService
@@ -215,6 +272,16 @@ async def upload_photo(
             )
         )
 
+        face_embedding = (
+            FaceService.fake_embedding()
+        )
+
+        FaceRepository.create(
+            db=db,
+            photo_id=db_photo.id,
+            embedding=face_embedding
+        )
+
         ImageEmbeddingRepository.create(
             db=db,
             photo_id=db_photo.id,
@@ -232,6 +299,49 @@ async def upload_photo(
             "FAISS UPDATED:",
             db_photo.filename
         )
+
+        classification = (
+            ClassificationService.classify(
+                str(file_path)
+            )
+        )
+
+        CategoryRepository.create(
+            db=db,
+            photo_id=db_photo.id,
+            category_name=classification[
+                "category"
+            ],
+            confidence_score=classification[
+                "confidence"
+         ]
+        )
+
+        print(
+            "CATEGORY:",
+            classification["category"]
+        )
+
+
+
+        ocr_text = (
+            OCRService.extract_text(
+                str(file_path)
+            )
+        )
+
+        if ocr_text:
+
+            PhotoOCRRepository.create(
+                db=db,
+                photo_id=db_photo.id,
+                ocr_text=ocr_text
+            )
+
+            print(
+                "OCR TEXT:",
+                ocr_text[:100]
+            )
 
     except Exception as e:
 
@@ -584,6 +694,12 @@ def semantic_search(
     current_user=Depends(get_current_user),
     db: Session = Depends(get_db)
 ):
+    
+    SearchHistoryRepository.create(
+        db=db,
+        user_id=current_user["sub"],
+        query=query
+    )
 
     return (
         SemanticSearchService.search(
@@ -593,35 +709,66 @@ def semantic_search(
             limit=limit
         )
     )
-  
 
 
 
-@router.get("/{photo_id}")
-def get_photo(
-    photo_id: str,
-    current_user=Depends(get_current_user),
+
+@router.get(
+    "/search-text"
+)
+def search_text(
+    query: str,
+    current_user=Depends(
+        get_current_user
+    ),
     db: Session = Depends(get_db)
 ):
-    
-    photo = PhotoRepository.get_by_id(
-        db,
-        photo_id
+
+    records = (
+        PhotoOCRRepository.search_text(
+            db,
+            query
+        )
     )
 
-    if not photo:
+    results = []
 
-        raise HTTPException(
-            status_code=404,
-            detail="Photo not found"
+    for record in records:
+
+        photo = (
+            PhotoRepository.get_by_id(
+                db,
+                record.photo_id
+            )
         )
 
-    verify_photo_owner(
-        photo,
-        current_user["sub"]
-    )
+        if not photo:
+            continue
 
-    return photo
+        if str(photo.user_id) != str(
+            current_user["sub"]
+        ):
+            continue
+
+        results.append({
+
+            "photo_id":
+            photo.id,
+
+            "filename":
+            photo.filename,
+
+            "file_path":
+            photo.file_path,
+
+            "ocr_preview":
+            record.ocr_text[:200]
+
+        })
+
+    return results
+  
+
 
 
 
@@ -765,6 +912,332 @@ def get_similar_photos(
     )
 
     return similar_photos
+
+
+
+@router.get(
+    "/category/{category_name}"
+)
+def get_photos_by_category(
+    category_name: str,
+    db: Session = Depends(get_db)
+):
+
+    categories = (
+        CategoryRepository.get_by_category(
+            db,
+            category_name
+        )
+    )
+
+    results = []
+
+    for item in categories:
+
+        photo = (
+            PhotoRepository.get_by_id(
+                db,
+                item.photo_id
+            )
+        )
+
+        if photo:
+
+            results.append({
+                "photo_id": photo.id,
+                "filename": photo.filename,
+                "file_path": photo.file_path,
+                "category": item.category_name,
+                "confidence":
+                item.confidence_score
+            })
+
+
+
+    return results
+
+
+
+
+@router.post(
+    "/faces/cluster"
+)
+def cluster_faces(
+    db: Session = Depends(get_db)
+):
+
+    return (
+        FaceClusteringService.cluster_faces(
+            db
+        )
+    )
+
+
+
+@router.get(
+    "/faces/clusters"
+)
+def get_clusters(
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    return (
+        FaceClusteringService.get_clusters(
+            db
+        )
+    )
+
+
+
+
+@router.get(
+    "/faces/clusters/{cluster_id}"
+)
+def get_cluster_photos(
+    cluster_id: str,
+    db: Session = Depends(get_db)
+):
+
+    faces = (
+        FaceRepository.get_by_cluster(
+            db,
+            cluster_id
+        )
+    )
+
+    results = []
+
+    for face in faces:
+
+        photo = (
+            PhotoRepository.get_by_id(
+                db,
+                face.photo_id
+            )
+        )
+
+        if photo:
+
+            results.append({
+                "photo_id": photo.id,
+                "filename": photo.filename,
+                "file_path": photo.file_path
+            })
+
+    return results
+
+
+
+
+
+@router.put(
+    "/faces/clusters/{cluster_id}/label"
+)
+def update_cluster_label(
+    cluster_id: str,
+    data: ClusterLabelUpdate,
+    db: Session = Depends(get_db)
+):
+
+    cluster = (
+        FaceClusterRepository.update_label(
+            db,
+            cluster_id,
+            data.label
+        )
+    )
+
+    if not cluster:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Cluster not found"
+        )
+
+    return {
+        "cluster_id": cluster.id,
+        "label": cluster.label
+    }
+
+
+
+
+
+@router.get(
+    "/person/{name}"
+)
+def get_person_photos(
+    name: str,
+    db: Session = Depends(get_db)
+):
+
+    cluster = (
+        FaceClusterRepository.get_by_label(
+            db,
+            name
+        )
+    )
+
+    if not cluster:
+
+        return []
+
+    faces = (
+        FaceRepository.get_by_cluster(
+            db,
+            cluster.id
+        )
+    )
+
+    results = []
+
+    for face in faces:
+
+        photo = (
+            PhotoRepository.get_by_id(
+                db,
+                face.photo_id
+            )
+        )
+
+        if photo:
+
+            results.append({
+                "photo_id": photo.id,
+                "filename": photo.filename,
+                "file_path": photo.file_path
+            })
+
+    return results
+
+
+
+
+@router.get(
+    "/ai-search"
+)
+def ai_search(
+    query: str,
+    current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(get_db)
+):
+
+    return (
+        AISearchService.search(
+            db=db,
+            query=query,
+            user_id=current_user["sub"]
+        )
+    )
+
+
+
+@router.get(
+    "/suggestions"
+)
+def get_suggestions(
+    query: str,
+    db: Session = Depends(get_db)
+):
+
+    return (
+        SearchSuggestionService.get_suggestions(
+            db,
+            query
+        )
+    )
+
+
+
+
+
+
+@router.get(
+    "/search-smart"
+)
+def search_smart(
+    query: str,
+    current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(get_db)
+):
+
+    return {
+        "query": query,
+        "results": (
+            AISearchService.search(
+                db=db,
+                query=query,
+                user_id=current_user["sub"]
+            )
+        )
+    }
+
+
+
+
+
+@router.get(
+    "/dashboard"
+)
+def get_stats(
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    return (
+        DashboardService.get_stats(
+            db
+        )
+    )
+
+
+
+
+
+
+
+
+
+
+@router.get("/{photo_id}")
+def get_photo(
+    photo_id: str,
+    current_user=Depends(get_current_user),
+    db: Session = Depends(get_db)
+):
+
+    photo = PhotoRepository.get_by_id(
+        db,
+        photo_id
+    )
+
+    if not photo:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Photo not found"
+        )
+
+    verify_photo_owner(
+        photo,
+        current_user["sub"]
+    )
+
+    return photo
+
+
+
+
+
+
+
 
 
 

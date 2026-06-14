@@ -5,6 +5,13 @@ from models.photo import Photo
 from models.image_embedding import ImageEmbedding
 from models.category import Category
 from models.search_index import SearchIndex
+from models.photo_ocr_text import (
+    PhotoOCRText
+)
+from models.search_history import SearchHistory
+
+from models.face import Face
+from models.face_cluster import FaceCluster
 
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool

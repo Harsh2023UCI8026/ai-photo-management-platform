@@ -1,0 +1,102 @@
+[33mcommit 4cfb1315956e7e870826fd975644077757a88f4e[m[33m ([m[1;36mHEAD[m[33m -> [m[1;32mmain[m[33m, [m[1;31morigin/main[m[33m)[m
+Author: Harsh Jha <harsh.jha.ug23@nsut.ac.in>
+Date:   Fri Jun 12 20:29:47 2026 +0530
+
+    first commit
+
+ README.md                                          | Bin [31m242[m -> [32m319[m bytes
+ ai_services/clip/clip_service.py                   |  64 [32m++[m
+ ai_services/clip/text_clip_service.py              |  42 [32m++[m
+ ai_services/faiss/faiss_service.py                 | 152 [32m++++[m
+ alembic.ini                                        |   3 [32m+[m[31m-[m
+ backend/Dockerfile                                 |  17 [32m+[m[31m-[m
+ backend/api/auth.py                                | 115 [32m+++[m
+ backend/api/photos.py                              | 770 [32m+++++++++++++++++++++[m
+ backend/api/users.py                               |  67 [32m++[m
+ backend/app/tasks/__init__.py                      |   0
+ backend/app/tasks/celery_app.py                    |   9 [32m+[m
+ backend/app/tasks/photo_tasks.py                   |  44 [32m++[m
+ backend/core/dependencies.py                       |  42 [32m++[m
+ backend/core/photo_security.py                     |  16 [32m+[m
+ backend/core/security.py                           |  59 [32m++[m
+ backend/database/base.py                           |   9 [32m+[m[31m-[m
+ backend/database/session.py                        |  11 [32m+[m[31m-[m
+ backend/dependencies/database.py                   |   0
+ backend/main.py                                    |  48 [32m++[m
+ backend/models/__init__.py                         |   6 [32m+[m
+ backend/models/category.py                         |  37 [32m+[m
+ backend/models/image_embedding.py                  |  48 [32m++[m
+ backend/models/photo.py                            |  40 [32m+[m[31m-[m
+ backend/models/search_history.py                   |  37 [32m+[m
+ backend/models/search_index.py                     |  33 [32m+[m
+ backend/models/user.py                             |   7 [32m+[m[31m-[m
+ backend/repositories/image_embedding_repository.py |  76 [32m++[m
+ backend/repositories/photo_repository.py           | 297 [32m++++++++[m
+ backend/repositories/search_history_repository.py  |  41 [32m++[m
+ backend/repositories/user_repository.py            |  89 [32m+++[m
+ backend/schemas/auth.py                            |  17 [32m+[m
+ backend/schemas/photo.py                           |  21 [32m+[m
+ backend/schemas/user.py                            |  15 [32m+[m
+ backend/services/faiss_index_service.py            |  98 [32m+++[m
+ backend/services/photo_service.py                  | 125 [32m++++[m
+ backend/services/semantic_search_service.py        | 115 [32m+++[m
+ database/migrations/env.py                         |   9 [32m+[m[31m-[m
+ .../27a114a0d22b_add_is_deleted_to_photos.py       |  28 [32m+[m
+ .../versions/48c784d5f048_add_password_hash.py     |  31 [32m+[m
+ .../versions/6391784deb4a_add_perceptual_hashes.py |  60 [32m++[m
+ .../versions/8280f068ab51_add_ai_tables.py         | 164 [32m+++++[m
+ .../migrations/versions/create_search_history.py   |  54 [32m++[m
+ docker-compose.yml                                 |  12 [32m+[m[31m-[m
+ requirements/ai.txt                                |   6 [32m+[m
+ requirements/base.txt                              |   9 [32m+[m[31m-[m
+ workers/Dockerfile                                 |   4 [32m+[m[31m-[m
+ workers/celery_app.py                              |   4 [32m+[m[31m-[m
+ workers/tasks/__init__.py                          |   0
+ workers/tasks/photo_tasks.py                       |  33 [32m+[m
+ 49 files changed, 2965 insertions(+), 19 deletions(-)
+
+[33mcommit ee9edcd26df2f6b76413299c1d1c985f46fadd95[m
+Author: Harsh Jha <harsh.jha.ug23@nsut.ac.in>
+Date:   Mon Jun 8 21:52:55 2026 +0530
+
+    feat: add users and photos database models with alembic migrations
+
+ .env.example                                       |   0
+ .gitignore                                         |  29 [32m++++[m
+ README.md                                          |  14 [32m++[m
+ alembic.ini                                        | 149 [32m+++++++++++++++++++++[m
+ backend/Dockerfile                                 |  13 [32m++[m
+ backend/core/config.py                             |   4 [32m+[m
+ backend/database/base.py                           |   4 [32m+[m
+ backend/database/session.py                        |  15 [32m+++[m
+ backend/main.py                                    |  11 [32m++[m
+ backend/models/base_model.py                       |   9 [32m++[m
+ backend/models/category.py                         |   0
+ backend/models/face.py                             |   0
+ backend/models/face_cluster.py                     |   0
+ backend/models/image_embedding.py                  |   0
+ backend/models/photo.py                            |  67 [32m+++++++++[m
+ backend/models/search_index.py                     |   0
+ backend/models/sync_job.py                         |   0
+ backend/models/user.py                             |  29 [32m++++[m
+ backend/repositories/photo_repository.py           |   0
+ backend/schemas/photo.py                           |   0
+ database/migrations/README                         |   1 [32m+[m
+ database/migrations/env.py                         |  81 [32m+++++++++++[m
+ database/migrations/script.py.mako                 |  28 [32m++++[m
+ .../versions/5f2d55db53ed_create_photos_table.py   |  45 [32m+++++++[m
+ .../versions/8539e358838c_create_users_table.py    |  39 [32m++++++[m
+ docker-compose.yml                                 |  52 [32m+++++++[m
+ docs/api-design.md                                 |   0
+ docs/architecture.md                               |   0
+ docs/database-design.md                            |   0
+ docs/deployment-guide.md                           |   0
+ docs/design-decisions.md                           |   0
+ docs/software-design-document.md                   |   0
+ requirements/ai.txt                                |   0
+ requirements/base.txt                              |  24 [32m++++[m
+ requirements/dev.txt                               |   0
+ requirements/prod.txt                              |   0
+ workers/Dockerfile                                 |  13 [32m++[m
+ workers/celery_app.py                              |   7 [32m+[m
+ 38 files changed, 634 insertions(+)

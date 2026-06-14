@@ -295,3 +295,39 @@ class PhotoRepository:
                 best_match = photo
 
         return best_match, highest_similarity
+    
+
+
+
+
+
+    @staticmethod
+    def count_all(
+        db: Session
+    ):
+
+        return (
+            db.query(Photo)
+            .count()
+        )
+    
+
+
+
+
+
+
+    @staticmethod
+    def total_storage(
+        db: Session
+    ):
+
+        photos = (
+            db.query(Photo)
+            .all()
+        )
+
+        return sum(
+            photo.file_size or 0
+            for photo in photos
+        )
