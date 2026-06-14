@@ -1,20 +1,8 @@
-# \# 📸 AI-Powered Photo Management Platform
+# &#x20;# 📸 AI-Powered Photo Management Platform
 
 # 
 
-# An intelligent photo management system that combines traditional photo storage with Artificial Intelligence capabilities such as:
-
-# 
-
-# \- OCR
-
-# \- Semantic Search
-
-# \- Image Categorization
-
-# \- Face Clustering
-
-# \- Smart Retrieval
+# > An intelligent photo management system powered by Artificial Intelligence that enables semantic image search, OCR-based retrieval, automatic categorization, face clustering, and smart photo organization.
 
 # 
 
@@ -22,7 +10,39 @@
 
 # 
 
-# \## 🚀 Features
+# \## 🌟 Overview
+
+# 
+
+# Traditional photo storage systems rely heavily on filenames and manual organization.
+
+# 
+
+# This project solves that problem by combining modern AI technologies with a scalable backend architecture, allowing users to search photos using:
+
+# 
+
+# \* Natural language queries
+
+# \* Image content
+
+# \* Extracted text
+
+# \* Categories
+
+# \* Recognized people
+
+# 
+
+# The platform automatically processes uploaded images and builds multiple AI indexes for intelligent retrieval.
+
+# 
+
+# \---
+
+# 
+
+# \## ✨ Key Features
 
 # 
 
@@ -30,13 +50,15 @@
 
 # 
 
-# \- User Registration
+# \* User Registration
 
-# \- User Login
+# \* User Login
 
-# \- JWT Authentication
+# \* JWT Authentication
 
-# \- Protected APIs
+# \* Protected APIs
+
+# \* User-specific Data Isolation
 
 # 
 
@@ -48,17 +70,19 @@
 
 # 
 
-# \- Upload Photos
+# \* Upload Photos
 
-# \- View Photos
+# \* View Photos
 
-# \- Download Photos
+# \* Download Photos
 
-# \- Rename Photos
+# \* Rename Photos
 
-# \- Trash \& Restore
+# \* Soft Delete (Trash)
 
-# \- Permanent Delete
+# \* Restore Photos
+
+# \* Permanent Delete
 
 # 
 
@@ -66,7 +90,7 @@
 
 # 
 
-# \### 🤖 AI Features
+# \### 🤖 AI-Powered Search
 
 # 
 
@@ -74,7 +98,7 @@
 
 # 
 
-# Extract text from screenshots automatically.
+# Automatically extracts text from images.
 
 # 
 
@@ -82,7 +106,23 @@
 
 # 
 
-# > Search "ChatGPT" → Returns screenshots containing ChatGPT.
+# Search:
+
+# 
+
+# ChatGPT
+
+# 
+
+# Result:
+
+# 
+
+# Screenshot containing ChatGPT text
+
+# 
+
+# \---
 
 # 
 
@@ -90,7 +130,7 @@
 
 # 
 
-# Search by meaning instead of filename.
+# Uses CLIP embeddings and FAISS vector search.
 
 # 
 
@@ -98,37 +138,29 @@
 
 # 
 
-# > Search "animal" → Returns dog, cat, lion, tiger images.
+# Search:
 
 # 
 
-# \#### Automatic Categorization
+# animal
 
 # 
 
-# Current categories:
+# Returns:
 
 # 
 
-# \- Food
+# \* Dog
 
-# \- Screenshot
+# \* Cat
 
-# 
+# \* Lion
 
-# \#### Face Clustering
-
-# 
-
-# Group photos belonging to the same person.
+# \* Tiger
 
 # 
 
-# \#### Person Search
-
-# 
-
-# Search photos by person name.
+# Even when filenames don't contain the word "animal".
 
 # 
 
@@ -136,7 +168,213 @@
 
 # 
 
-# \## 🛠️ Tech Stack
+# \#### AI Search Engine
+
+# 
+
+# Combines:
+
+# 
+
+# \* OCR Search
+
+# \* Semantic Search
+
+# \* Category Search
+
+# 
+
+# to provide intelligent results.
+
+# 
+
+# \---
+
+# 
+
+# \#### Smart Search
+
+# 
+
+# Single endpoint capable of querying multiple AI subsystems simultaneously.
+
+# 
+
+# \---
+
+# 
+
+# \### 🏷️ Automatic Categorization
+
+# 
+
+# Images are automatically classified during upload.
+
+# 
+
+# Current supported categories:
+
+# 
+
+# \* Food
+
+# \* Screenshot
+
+# 
+
+# \---
+
+# 
+
+# \### 👤 Face Clustering
+
+# 
+
+# Face embeddings are stored and grouped.
+
+# 
+
+# Features:
+
+# 
+
+# \* Cluster Faces
+
+# \* Rename Clusters
+
+# \* Search by Person Name
+
+# 
+
+# Example:
+
+# 
+
+# Person 1
+
+# 
+
+# ↓
+
+# 
+
+# Harsh
+
+# 
+
+# Then search:
+
+# 
+
+# Harsh
+
+# 
+
+# to retrieve all related photos.
+
+# 
+
+# \---
+
+# 
+
+# \### 🔎 Search Suggestions
+
+# 
+
+# Autocomplete suggestions generated from:
+
+# 
+
+# \* Categories
+
+# \* Person Labels
+
+# 
+
+# \---
+
+# 
+
+# \### 📊 Dashboard Analytics
+
+# 
+
+# Provides collection insights:
+
+# 
+
+# \* Total Photos
+
+# \* Storage Usage
+
+# \* Categories
+
+# \* Faces
+
+# \* Face Clusters
+
+# 
+
+# \---
+
+# 
+
+# \## 🏗️ System Architecture
+
+# 
+
+# ```text
+
+# User Upload
+
+# &#x20;    │
+
+# &#x20;    ▼
+
+# &#x20;Store Photo
+
+# &#x20;    │
+
+# &#x20;    ├──► Thumbnail Generation
+
+# &#x20;    │
+
+# &#x20;    ├──► OCR Extraction
+
+# &#x20;    │
+
+# &#x20;    ├──► Category Classification
+
+# &#x20;    │
+
+# &#x20;    ├──► Face Processing
+
+# &#x20;    │
+
+# &#x20;    └──► CLIP Embedding Generation
+
+# &#x20;                  │
+
+# &#x20;                  ▼
+
+# &#x20;            FAISS Vector Index
+
+# &#x20;                  │
+
+# &#x20;                  ▼
+
+# &#x20;           Intelligent Search
+
+# ```
+
+# 
+
+# \---
+
+# 
+
+# \## 🛠️ Technology Stack
 
 # 
 
@@ -144,37 +382,49 @@
 
 # 
 
-# \- FastAPI
+# \* FastAPI
 
-# \- PostgreSQL
+# \* Python
 
-# \- SQLAlchemy
+# \* PostgreSQL
 
-# \- Alembic
+# \* SQLAlchemy
 
-# 
-
-# \### AI
+# \* Alembic
 
 # 
 
-# \- CLIP
-
-# \- FAISS
-
-# \- OCR (Tesseract)
+# \### AI \& Machine Learning
 
 # 
 
-# \### Infrastructure
+# \* CLIP
+
+# \* FAISS
+
+# \* Tesseract OCR
+
+# \* NumPy
 
 # 
 
-# \- Docker
+# \### Background Processing
 
-# \- Redis
+# 
 
-# \- Celery
+# \* Celery
+
+# \* Redis
+
+# 
+
+# \### DevOps
+
+# 
+
+# \* Docker
+
+# \* Docker Compose
 
 # 
 
@@ -182,23 +432,255 @@
 
 # 
 
-# \## 📊 Current Status
+# \## 📂 Project Structure
 
 # 
 
-# \### Completed
+# ```text
+
+# ai-photo-management-platform/
+
+# │
+
+# ├── backend/
+
+# │   ├── api/
+
+# │   ├── models/
+
+# │   ├── repositories/
+
+# │   ├── services/
+
+# │   ├── schemas/
+
+# │   └── core/
+
+# │
+
+# ├── workers/
+
+# │
+
+# ├── uploads/
+
+# │
+
+# ├── thumbnails/
+
+# │
+
+# ├── requirements/
+
+# │
+
+# ├── docker-compose.yml
+
+# │
+
+# └── README.md
+
+# ```
 
 # 
 
-# ✅ Authentication
+# \---
 
 # 
 
-# ✅ Photo Upload
+# \## 📡 Major API Endpoints
 
 # 
 
-# ✅ OCR Search
+# \### Authentication
+
+# 
+
+# POST /auth/register
+
+# 
+
+# POST /auth/login
+
+# 
+
+# GET /auth/me
+
+# 
+
+# \---
+
+# 
+
+# \### Photo Management
+
+# 
+
+# POST /photos/upload
+
+# 
+
+# GET /photos/
+
+# 
+
+# GET /photos/{photo\_id}
+
+# 
+
+# PUT /photos/{photo\_id}/rename
+
+# 
+
+# DELETE /photos/{photo\_id}
+
+# 
+
+# POST /photos/{photo\_id}/restore
+
+# 
+
+# \---
+
+# 
+
+# \### AI Search
+
+# 
+
+# GET /photos/search-smart
+
+# 
+
+# GET /photos/semantic-search
+
+# 
+
+# GET /photos/ai-search
+
+# 
+
+# GET /photos/search-text
+
+# 
+
+# GET /photos/suggestions
+
+# 
+
+# \---
+
+# 
+
+# \### Categories
+
+# 
+
+# GET /photos/category/{category\_name}
+
+# 
+
+# \---
+
+# 
+
+# \### Faces
+
+# 
+
+# POST /photos/faces/cluster
+
+# 
+
+# GET /photos/faces/clusters
+
+# 
+
+# PUT /photos/faces/clusters/{cluster\_id}/label
+
+# 
+
+# GET /photos/person/{name}
+
+# 
+
+# \---
+
+# 
+
+# \### Analytics
+
+# 
+
+# GET /photos/dashboard
+
+# 
+
+# \---
+
+# 
+
+# \## 🐳 Running with Docker
+
+# 
+
+# Build Containers
+
+# 
+
+# ```bash
+
+# docker compose build
+
+# ```
+
+# 
+
+# Start Services
+
+# 
+
+# ```bash
+
+# docker compose up -d
+
+# ```
+
+# 
+
+# Stop Services
+
+# 
+
+# ```bash
+
+# docker compose down
+
+# ```
+
+# 
+
+# \---
+
+# 
+
+# \## 📈 Current Progress
+
+# 
+
+# \### Backend
+
+# 
+
+# ✅ Authentication System
+
+# 
+
+# ✅ Photo Upload System
+
+# 
+
+# ✅ OCR Integration
 
 # 
 
@@ -210,6 +692,10 @@
 
 # 
 
+# ✅ Category Search
+
+# 
+
 # ✅ Face Clustering
 
 # 
@@ -218,11 +704,11 @@
 
 # 
 
-# ✅ Dashboard Analytics
+# ✅ Search Suggestions
 
 # 
 
-# ✅ Search Suggestions
+# ✅ Dashboard Analytics
 
 # 
 
@@ -230,23 +716,103 @@
 
 # 
 
-# \### In Progress
+# \---
 
 # 
 
-# 🚧 React Frontend
+# \### Frontend
 
 # 
 
-# 🚧 Advanced Face Recognition
+# 🚧 Responsive React Frontend
 
 # 
 
-# 🚧 Albums \& Favorites
+# 🚧 Gallery Interface
 
 # 
 
-# 🚧 Duplicate Detection
+# 🚧 Dashboard UI
+
+# 
+
+# 🚧 Search Interface
+
+# 
+
+# 🚧 Person Management UI
+
+# 
+
+# \---
+
+# 
+
+# \## 🔮 Future Enhancements
+
+# 
+
+# \### AI
+
+# 
+
+# \* Real Face Recognition (InsightFace)
+
+# \* Advanced Image Classification
+
+# \* Duplicate Detection
+
+# \* Object Detection
+
+# 
+
+# \### Search
+
+# 
+
+# \* Date-Based Search
+
+# \* Location-Based Search
+
+# \* Natural Language Queries
+
+# 
+
+# \### Organization
+
+# 
+
+# \* Albums
+
+# \* Favorites
+
+# \* Tags
+
+# \* Bulk Operations
+
+# 
+
+# \### Analytics
+
+# 
+
+# \* Search History
+
+# \* User Insights
+
+# \* Usage Reports
+
+# 
+
+# \---
+
+# 
+
+# \## 🎯 Project Goal
+
+# 
+
+# The goal of this project is to build a modern AI-powered photo management platform that allows users to organize and retrieve images using content understanding rather than relying solely on filenames and folders.
 
 # 
 
@@ -262,5 +828,11 @@
 
 # 
 
-# NSUT
+# B.Tech Student, NSUT
+
+# 
+
+# AI • Backend Development • Computer Vision • FastAPI
+
+
 
