@@ -81,6 +81,13 @@ class Photo(Base):
     )
 
 
+    is_favorite: Mapped[bool] = mapped_column(
+    Boolean,
+    default=False,
+    nullable=False
+    )
+
+
     phash: Mapped[str | None] = mapped_column(
     String(64),
     nullable=True

@@ -18,6 +18,10 @@ from services.query_normalizer import (
     QueryNormalizer
 )
 
+from repositories.search_history_repository import (
+    SearchHistoryRepository
+)
+
 
 class AISearchService:
 
@@ -27,6 +31,12 @@ class AISearchService:
         query,
         user_id
     ):
+        
+        SearchHistoryRepository.create(
+        db=db,
+        user_id=user_id,
+        query=query
+        )
 
         results = []
 

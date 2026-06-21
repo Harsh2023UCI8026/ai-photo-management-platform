@@ -29,8 +29,23 @@ class DashboardService:
                 db
             ),
 
+            "favorite_photos":
+            PhotoRepository.count_favorites(
+                db
+            ),
+
+            "deleted_photos":
+            PhotoRepository.count_deleted(
+                db
+            ),
+
             "total_storage_bytes":
             PhotoRepository.total_storage(
+                db
+            ),
+
+            "average_file_size_bytes":
+            PhotoRepository.average_file_size(
                 db
             ),
 

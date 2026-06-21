@@ -1,4 +1,5 @@
 import os
+from uuid import uuid4
 from pathlib import Path
 import mimetypes
 from models.photo import Photo
@@ -76,9 +77,7 @@ from repositories.search_history_repository import (
     SearchHistoryRepository
 )
 from repositories.photo_repository import PhotoRepository
-from repositories.photo_ocr_repository import (
-    PhotoOCRRepository
-)
+ 
 from ai_services.faiss.faiss_service import (
     faiss_service
 )
@@ -95,7 +94,6 @@ from sqlalchemy.orm import Session
 
 from database.session import get_db
 
-from repositories.photo_repository import PhotoRepository
 from schemas.photo import PhotoCreate
 
 from schemas.face_cluster import (
@@ -108,13 +106,9 @@ from services.dashboard_service import (
     DashboardService
 )
 
-from services.faiss_index_service import (
-    FaissIndexService
+from services.filter_service import (
+    FilterService
 )
-
-clip_service = ClipService()
-
-
 
 
 router = APIRouter(
@@ -209,7 +203,14 @@ async def upload_photo(
             "filename": existing_photo.filename
         }
 
-    file_path = upload_dir / file.filename
+    unique_filename = (
+    f"{uuid4()}_{file.filename}"
+    )
+
+    file_path = (
+        upload_dir /
+        unique_filename
+    )
 
     with open(file_path, "wb") as buffer:
         buffer.write(file_bytes)
@@ -250,9 +251,9 @@ async def upload_photo(
     db_photo = (PhotoRepository.create_uploaded_photo(
         db=db,
         user_id=user_id,
-        filename=file.filename,
-        file_path=f"/uploads/{file.filename}",
-        thumbnail_path=f"/thumbnails/thumb_{file.filename}",
+        filename=unique_filename,
+        file_path=f"/uploads/{unique_filename}",
+        thumbnail_path=f"/thumbnails/thumb_{unique_filename}",
         file_size=len(file_bytes),
         md5_hash=md5_hash,
         sha256_hash=sha256_hash,
@@ -1194,6 +1195,167 @@ def get_stats(
     return (
         DashboardService.get_stats(
             db
+        )
+    )
+
+
+
+
+
+
+@router.get(
+    "/favorites"
+)
+def get_favorites(
+    current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    return (
+        PhotoRepository.get_favorites(
+            db,
+            current_user["sub"]
+        )
+    )
+
+
+
+
+@router.post(
+    "/{photo_id}/favorite"
+)
+def add_to_favorites(
+    photo_id: str,
+    current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    photo = (
+        PhotoRepository.get_by_id(
+            db,
+            photo_id
+        )
+    )
+
+    if not photo:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Photo not found"
+        )
+
+    verify_photo_owner(
+        photo,
+        current_user["sub"]
+    )
+
+    photo = (
+        PhotoRepository.add_to_favorites(
+            db,
+            photo_id
+        )
+    )
+
+    return {
+        "message":
+        "Photo added to favorites",
+
+        "photo_id":
+        photo.id,
+
+        "is_favorite":
+        photo.is_favorite
+    }
+
+
+
+
+@router.delete(
+    "/{photo_id}/favorite"
+)
+def remove_from_favorites(
+    photo_id: str,
+    current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    photo = (
+        PhotoRepository.get_by_id(
+            db,
+            photo_id
+        )
+    )
+
+    if not photo:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Photo not found"
+        )
+
+    verify_photo_owner(
+        photo,
+        current_user["sub"]
+    )
+
+    photo = (
+        PhotoRepository.remove_from_favorites(
+            db,
+            photo_id
+        )
+    )
+
+    return {
+        "message":
+        "Photo removed from favorites",
+
+        "photo_id":
+        photo.id,
+
+        "is_favorite":
+        photo.is_favorite
+    }
+
+
+
+
+
+@router.get(
+    "/filter"
+)
+def filter_photos(
+    favorite: bool | None = None,
+    category: str | None = None,
+    person: str | None = None,
+    tag: str | None = None,
+     current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    return (
+        FilterService.filter_photos(
+            db=db,
+            user_id=current_user["sub"],
+            favorite=favorite,
+            category=category,
+            person=person,
+            tag=tag
         )
     )
 

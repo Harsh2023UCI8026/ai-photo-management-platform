@@ -331,3 +331,167 @@ class PhotoRepository:
             photo.file_size or 0
             for photo in photos
         )
+    
+
+
+    @staticmethod
+    def add_to_favorites(
+        db: Session,
+        photo_id: str
+    ):
+
+        photo = (
+            db.query(Photo)
+            .filter(
+                Photo.id == photo_id
+            )
+            .first()
+        )
+
+        if not photo:
+            return None
+
+        photo.is_favorite = True
+
+        db.commit()
+
+        db.refresh(photo)
+
+        return photo
+
+
+    @staticmethod
+    def remove_from_favorites(
+        db: Session,
+        photo_id: str
+    ):
+
+        photo = (
+            db.query(Photo)
+            .filter(
+                Photo.id == photo_id
+            )
+            .first()
+        )
+
+        if not photo:
+            return None
+
+        photo.is_favorite = False
+
+        db.commit()
+
+        db.refresh(photo)
+
+        return photo
+
+
+    @staticmethod
+    def get_favorites(
+        db: Session,
+        user_id: str
+    ):
+
+        return (
+            db.query(Photo)
+            .filter(
+                Photo.user_id == user_id,
+                Photo.is_favorite == True,
+                Photo.is_deleted == False
+            )
+            .all()
+        )
+    
+
+
+
+
+    @staticmethod
+    def count_favorites(
+        db: Session
+    ):
+
+        return (
+            db.query(Photo)
+            .filter(
+                Photo.is_favorite == True
+            )
+            .count()
+        )
+
+
+    @staticmethod
+    def count_deleted(
+        db: Session
+    ):
+
+        return (
+            db.query(Photo)
+            .filter(
+                Photo.is_deleted == True
+            )
+            .count()
+        )
+
+
+    @staticmethod
+    def average_file_size(
+        db: Session
+    ):
+
+        photos = (
+            db.query(Photo)
+            .filter(
+                Photo.is_deleted == False
+            )
+            .all()
+        )
+
+        if not photos:
+            return 0
+
+        total = sum(
+            photo.file_size
+            for photo in photos
+        )
+
+        return total / len(photos)
+    
+
+
+
+
+    @staticmethod
+    def get_favorites(
+        db,
+        user_id
+    ):
+
+        return (
+            db.query(Photo)
+            .filter(
+                Photo.user_id == user_id,
+                Photo.is_favorite == True
+            )
+            .all()
+        )
+
+
+    @staticmethod
+    def get_not_deleted(db):
+
+        return (
+            db.query(Photo)
+            .filter(
+            Photo.is_deleted == False
+        )
+        .all()
+        )
+    
+
+
+
+
+
+
+ 

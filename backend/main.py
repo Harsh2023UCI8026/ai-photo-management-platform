@@ -6,12 +6,27 @@ from models.photo import Photo
 
 from models.search_history import SearchHistory
 
+from models.album import Album
+from models.album_photo import AlbumPhoto
+
+from models.tag import Tag
+from models.photo_tag import PhotoTag
+
 from api.photos import router as photos_router
 from api.users import router as users_router
 from api.auth import router as auth_router
 from api.search_history import (
     router as search_history_router
 )
+
+from api.albums import (
+    router as albums_router
+)
+
+from api.tags import (
+    router as tags_router
+)
+
 from database.session import SessionLocal
 
 from services.faiss_index_service import (
@@ -55,6 +70,14 @@ app.include_router(auth_router)
 
 app.include_router(
     search_history_router
+)
+
+app.include_router(
+    albums_router
+)
+
+app.include_router(
+    tags_router
 )
 
 # Static Files (Uploaded Images)

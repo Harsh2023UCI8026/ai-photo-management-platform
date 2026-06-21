@@ -13,6 +13,12 @@ from models.search_history import SearchHistory
 from models.face import Face
 from models.face_cluster import FaceCluster
 
+from models.album import Album
+from models.album_photo import AlbumPhoto
+
+from models.tag import Tag
+from models.photo_tag import PhotoTag
+
 from sqlalchemy import engine_from_config
 from sqlalchemy import pool
 

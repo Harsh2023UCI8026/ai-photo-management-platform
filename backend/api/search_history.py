@@ -33,3 +33,50 @@ def get_search_history(
     )
 
     return history
+
+
+
+
+
+@router.get(
+    "/top"
+)
+def get_top_queries(
+    current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    return (
+        SearchHistoryRepository.get_top_queries(
+            db,
+            current_user["sub"]
+        )
+    )
+
+
+
+@router.delete(
+    "/clear"
+)
+def clear_history(
+    current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    SearchHistoryRepository.clear_history(
+        db,
+        current_user["sub"]
+    )
+
+    return {
+        "message":
+        "Search history cleared"
+    }

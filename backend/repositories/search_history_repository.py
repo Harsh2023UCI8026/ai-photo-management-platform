@@ -39,3 +39,65 @@ class SearchHistoryRepository:
             )
             .all()
         )
+    
+
+
+
+
+    @staticmethod
+    def clear_history(
+        db: Session,
+        user_id: str
+    ):
+
+        (
+            db.query(SearchHistory)
+            .filter(
+                SearchHistory.user_id == user_id
+            )
+            .delete()
+        )
+
+        db.commit()
+
+
+    @staticmethod
+    def get_top_queries(
+        db: Session,
+        user_id: str
+    ):
+
+        history = (
+            db.query(SearchHistory)
+            .filter(
+                SearchHistory.user_id == user_id
+            )
+            .all()
+        )
+
+        counts = {}
+
+        for item in history:
+
+            query = item.query.lower()
+
+            counts[query] = (
+                counts.get(query, 0)
+                + 1
+            )
+
+        results = []
+
+        for query, count in counts.items():
+
+            results.append({
+                "query": query,
+                "count": count
+            })
+
+        results.sort(
+            key=lambda x: x["count"],
+            reverse=True
+        )
+
+        return results[:10]
