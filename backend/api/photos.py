@@ -106,6 +106,10 @@ from services.dashboard_service import (
     DashboardService
 )
 
+from services.timeline_service import (
+    TimelineService
+)
+
 from services.filter_service import (
     FilterService
 )
@@ -629,61 +633,6 @@ def rename_photo(
     }
 
 
-
-@router.get("/trash")
-def get_trash(
-    current_user=Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-
-    photos = (
-        db.query(Photo)
-        .filter(
-            Photo.user_id == current_user["sub"],
-            Photo.is_deleted == True
-        )
-        .all()
-    )
-
-    return {
-        "total": len(photos),
-        "photos": photos
-    }
-
-
-
-@router.post("/{photo_id}/restore")
-def restore_photo(
-    photo_id: str,
-    current_user=Depends(get_current_user),
-    db: Session = Depends(get_db)
-):
-
-    photo = PhotoRepository.get_by_id(
-        db,
-        photo_id
-    )
-
-    if not photo:
-        raise HTTPException(
-            status_code=404,
-            detail="Photo not found"
-        )
-
-    verify_photo_owner(
-        photo,
-        current_user["sub"]
-    )
-
-    photo.is_deleted = False
-
-    db.commit()
-    db.refresh(photo)
-
-    return {
-        "message": "Photo restored successfully",
-        "filename": photo.filename
-    }
 
 
 
@@ -1362,6 +1311,298 @@ def filter_photos(
 
 
 
+@router.get(
+    "/archived"
+)
+def get_archived_photos(
+    current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    return (
+        PhotoRepository.get_archived(
+            db,
+            current_user["sub"]
+        )
+    )
+
+
+@router.post(
+    "/{photo_id}/archive"
+)
+def archive_photo(
+    photo_id: str,
+    current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    photo = (
+        PhotoRepository.get_by_id(
+            db,
+            photo_id
+        )
+    )
+
+    if not photo:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Photo not found"
+        )
+
+    verify_photo_owner(
+        photo,
+        current_user["sub"]
+    )
+
+    photo = (
+        PhotoRepository.archive_photo(
+            db,
+            photo_id
+        )
+    )
+
+    return {
+        "message":
+        "Photo archived",
+
+        "photo_id":
+        photo.id,
+
+        "is_archived":
+        photo.is_archived
+    }
+
+
+@router.delete(
+    "/{photo_id}/archive"
+)
+def unarchive_photo(
+    photo_id: str,
+    current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    photo = (
+        PhotoRepository.get_by_id(
+            db,
+            photo_id
+        )
+    )
+
+    if not photo:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Photo not found"
+        )
+
+    verify_photo_owner(
+        photo,
+        current_user["sub"]
+    )
+
+    photo = (
+        PhotoRepository.unarchive_photo(
+            db,
+            photo_id
+        )
+    )
+
+    return {
+        "message":
+        "Photo unarchived",
+
+        "photo_id":
+        photo.id,
+
+        "is_archived":
+        photo.is_archived
+    }
+
+
+
+
+
+
+
+
+@router.get(
+    "/trash"
+)
+def get_trash(
+    current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    return (
+        PhotoRepository.get_deleted(
+            db,
+            current_user["sub"]
+        )
+    )
+
+
+
+
+
+
+@router.get(
+    "/timeline"
+)
+def get_timeline(
+    current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    return (
+        TimelineService.get_summary(
+            db,
+            current_user["sub"]
+        )
+    )
+
+
+@router.get(
+    "/timeline/details"
+)
+def get_timeline_details(
+    period: str,
+    current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    return (
+        TimelineService.get_period_photos(
+            db,
+            current_user["sub"],
+            period
+        )
+    )
+
+
+
+
+
+
+@router.post(
+    "/{photo_id}/restore"
+)
+def restore_photo(
+    photo_id: str,
+    current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    photo = (
+        PhotoRepository.get_by_id(
+            db,
+            photo_id
+        )
+    )
+
+    if not photo:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Photo not found"
+        )
+
+    verify_photo_owner(
+        photo,
+        current_user["sub"]
+    )
+
+    photo = (
+        PhotoRepository.restore_photo(
+            db,
+            photo_id
+        )
+    )
+
+    return {
+        "message":
+        "Photo restored",
+
+        "photo_id":
+        photo.id
+    }
+
+
+
+
+
+
+
+@router.delete(
+    "/{photo_id}/permanent"
+)
+def permanent_delete(
+    photo_id: str,
+    current_user=Depends(
+        get_current_user
+    ),
+    db: Session = Depends(
+        get_db
+    )
+):
+
+    photo = (
+        PhotoRepository.get_by_id(
+            db,
+            photo_id
+        )
+    )
+
+    if not photo:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Photo not found"
+        )
+
+    verify_photo_owner(
+        photo,
+        current_user["sub"]
+    )
+
+    PhotoRepository.permanent_delete(
+        db,
+        photo_id
+    )
+
+    return {
+        "message":
+        "Photo permanently deleted"
+    }
 
 
 

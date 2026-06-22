@@ -13,6 +13,22 @@ class AlbumPhotoRepository:
         album_id: str,
         photo_id: str
     ):
+        
+
+
+        existing = (
+            db.query(AlbumPhoto)
+            .filter(
+                AlbumPhoto.album_id == album_id,
+                AlbumPhoto.photo_id == photo_id
+            )
+            .first()
+        )
+
+        if existing:
+            return {
+                "message": "Photo already exists in album"
+            }
 
         item = AlbumPhoto(
             album_id=album_id,
@@ -71,3 +87,23 @@ class AlbumPhotoRepository:
         db.commit()
 
         return item
+    
+
+
+
+    @staticmethod
+    def delete_album_relations(
+        db: Session,
+        album_id: str
+    ):
+
+        (
+            db.query(AlbumPhoto)
+            .filter(
+                AlbumPhoto.album_id
+                == album_id
+            )
+            .delete()
+        )
+
+        db.commit()

@@ -32,7 +32,6 @@ PhotoTagRepository
 
 class FilterService:
 
-
     @staticmethod
     def filter_photos(
         db,
@@ -43,53 +42,62 @@ class FilterService:
         tag=None
     ):
 
-    #
-    # FAVORITES
-    #
+        photos = (
+            PhotoRepository.get_not_deleted(
+                db
+            )
+        )
+
+        photos = [
+            photo
+            for photo in photos
+            if str(photo.user_id)
+            == str(user_id)
+        ]
+
+        
+        # FAVORITES
+        
 
         if favorite:
 
-            return (
-                PhotoRepository.get_favorites(
-                    db
-                )
-            )
+            photos = [
+                photo
+                for photo in photos
+                if photo.is_favorite
+            ]
 
-    #
-    # CATEGORY
-    #
+    
+        # CATEGORY
+    
 
         if category:
 
-            categories = (
-                CategoryRepository.get_by_category(
-                    db,
-                    category
-                )
-            )
+            category_photo_ids = {
 
-            results = []
+                item.photo_id
 
-            for item in categories:
-
-                photo = (
-                    PhotoRepository.get_by_id(
+                for item in (
+                    CategoryRepository.get_by_category(
                         db,
-                        item.photo_id
+                        category
                     )
                 )
+            }
 
-                if (
-                    photo
-                    and str(photo.user_id) == str(user_id)
-                ):
-                    results.append(photo)
+            photos = [
 
-            return results
+                photo
 
-    #
-    # PERSON
-    #
+                for photo in photos
+
+                if photo.id
+                in category_photo_ids
+            ]
+
+    
+        # PERSON
+    
 
         if person:
 
@@ -103,43 +111,31 @@ class FilterService:
             if not cluster:
                 return []
 
-            faces = (
-                FaceRepository.get_by_cluster(
-                    db,
-                    cluster.id
-                )
-            )
+            person_photo_ids = {
 
-            results = []
+                face.photo_id
 
-            added = set()
-
-            for face in faces:
-
-                photo = (
-                    PhotoRepository.get_by_id(
+                for face in (
+                    FaceRepository.get_by_cluster(
                         db,
-                        face.photo_id
+                        cluster.id
                     )
                 )
+            }
 
-                if (
-                    photo
-                    and photo.id not in added
-                    and str(photo.user_id)
-                    == str(user_id)
-                ):
-                    results.append(photo)
-                    added.add(photo.id)
+            photos = [
 
-            return results
-        
+                photo
 
+                for photo in photos
 
+                if photo.id
+                in person_photo_ids
+            ]
 
-
-        
-    # TAG #
+    
+        # TAG
+    
 
         if tag:
 
@@ -153,36 +149,26 @@ class FilterService:
             if not tag_obj:
                 return []
 
-            photo_tags = (
-                PhotoTagRepository.get_by_tag(
-                    db,
-                    tag_obj.id
-                )
-            )
+            tag_photo_ids = {
 
-            results = []
+                item.photo_id
 
-            for item in photo_tags:
-
-                photo = (
-                    PhotoRepository.get_by_id(
+                for item in (
+                    PhotoTagRepository.get_by_tag(
                         db,
-                        item.photo_id
+                        tag_obj.id
                     )
                 )
+            }
 
-                if (
-                    photo
-                    and str(photo.user_id)
-                    == str(user_id)
-                ):
-                    results.append(photo)
+            photos = [
 
-            return results
+                photo
 
-        return (
-            PhotoRepository.get_not_deleted(
-                db
-            )
-        )
+                for photo in photos
 
+                if photo.id
+                in tag_photo_ids
+            ]
+            
+        return photos

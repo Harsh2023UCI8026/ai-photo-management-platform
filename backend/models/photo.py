@@ -9,6 +9,9 @@ from sqlalchemy.orm import mapped_column
 
 from database.base import Base
 from sqlalchemy import Boolean
+
+from sqlalchemy import DateTime
+from datetime import datetime
  
 
 
@@ -88,6 +91,16 @@ class Photo(Base):
     )
 
 
+    is_archived: Mapped[bool] = mapped_column(
+    Boolean,
+    default=False,
+    nullable=False
+    )
+
+
+
+
+
     phash: Mapped[str | None] = mapped_column(
     String(64),
     nullable=True
@@ -102,3 +115,13 @@ class Photo(Base):
     String(64),
     nullable=True
     )
+
+
+
+    created_at: Mapped[datetime] = mapped_column(
+    DateTime,
+    default=datetime.utcnow,
+    nullable=False
+    )
+
+

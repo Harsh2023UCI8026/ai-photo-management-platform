@@ -386,26 +386,7 @@ class PhotoRepository:
         return photo
 
 
-    @staticmethod
-    def get_favorites(
-        db: Session,
-        user_id: str
-    ):
-
-        return (
-            db.query(Photo)
-            .filter(
-                Photo.user_id == user_id,
-                Photo.is_favorite == True,
-                Photo.is_deleted == False
-            )
-            .all()
-        )
-    
-
-
-
-
+     
     @staticmethod
     def count_favorites(
         db: Session
@@ -483,11 +464,125 @@ class PhotoRepository:
         return (
             db.query(Photo)
             .filter(
-            Photo.is_deleted == False
+            Photo.is_deleted == False,
+            Photo.is_archived == False
         )
         .all()
         )
     
+
+
+
+    @staticmethod
+    def archive_photo(
+        db: Session,
+        photo_id: str
+    ):
+
+        photo = (
+            db.query(Photo)
+            .filter(
+                Photo.id == photo_id
+            )
+            .first()
+        )
+
+        if not photo:
+            return None
+
+        photo.is_archived = True
+
+        db.commit()
+
+        db.refresh(photo)
+
+        return photo
+
+
+    @staticmethod
+    def unarchive_photo(
+        db: Session,
+        photo_id: str
+    ):
+
+        photo = (
+            db.query(Photo)
+            .filter(
+                Photo.id == photo_id
+            )
+            .first()
+        )
+
+        if not photo:
+            return None
+
+        photo.is_archived = False
+
+        db.commit()
+
+        db.refresh(photo)
+
+        return photo
+
+
+    @staticmethod
+    def get_archived(
+        db: Session,
+        user_id: str
+    ):
+
+        return (
+            db.query(Photo)
+            .filter(
+                Photo.user_id == user_id,
+                Photo.is_archived == True
+            )
+            .all()
+        )
+    
+
+
+
+    @staticmethod
+    def get_deleted(
+        db: Session,
+        user_id: str
+    ):
+
+        return (
+            db.query(Photo)
+            .filter(
+                Photo.user_id == user_id,
+                Photo.is_deleted == True
+            )
+            .all()
+        )
+
+
+    @staticmethod
+    def restore_photo(
+        db: Session,
+        photo_id: str
+    ):
+
+        photo = (
+            db.query(Photo)
+            .filter(
+                Photo.id == photo_id
+            )
+            .first()
+        )
+
+        if not photo:
+            return None
+
+        photo.is_deleted = False
+
+        db.commit()
+
+        db.refresh(photo)
+
+        return photo
 
 
 

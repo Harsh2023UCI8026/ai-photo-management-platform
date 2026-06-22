@@ -23,6 +23,10 @@ from api.albums import (
     router as albums_router
 )
 
+from api.collections import (
+    router as collections_router
+)
+
 from api.tags import (
     router as tags_router
 )
@@ -70,6 +74,10 @@ app.include_router(auth_router)
 
 app.include_router(
     search_history_router
+)
+
+app.include_router(
+    collections_router
 )
 
 app.include_router(

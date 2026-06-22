@@ -43,6 +43,28 @@ def create_album(
         get_db
     )
 ):
+    
+
+
+    existing_albums = (
+        AlbumRepository.get_all(
+            db,
+            current_user["sub"]
+        )
+    )
+
+    for item in existing_albums:
+
+        if (
+            item.name.lower()
+            ==
+            album.name.lower()
+        ):
+
+            raise HTTPException(
+                status_code=400,
+                detail="Album already exists"
+            )
 
     return (
         AlbumRepository.create(
@@ -104,6 +126,12 @@ def delete_album(
             status_code=403,
             detail="Access denied"
         )
+    
+
+    AlbumPhotoRepository.delete_album_relations(
+        db,
+        album_id
+    )
 
     AlbumRepository.delete(
         db,
@@ -143,6 +171,14 @@ def add_photo_to_album(
             status_code=404,
             detail="Album not found"
         )
+    
+
+    if album.user_id != current_user["sub"]:
+
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
 
     photo = (
         PhotoRepository.get_by_id(
@@ -157,6 +193,20 @@ def add_photo_to_album(
             status_code=404,
             detail="Photo not found"
         )
+    
+
+
+
+    if photo.user_id != current_user["sub"]:
+
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
+    
+
+
+
 
     return (
         AlbumPhotoRepository.add_photo(
@@ -193,6 +243,15 @@ def get_album(
             status_code=404,
             detail="Album not found"
         )
+    
+
+
+    if album.user_id != current_user["sub"]:
+
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
 
     photos = (
         AlbumPhotoRepository.get_album_photos(
@@ -201,9 +260,29 @@ def get_album(
         )
     )
 
+
+
+    results = []
+
+    for item in photos:
+
+        photo = (
+            PhotoRepository.get_by_id(
+                db,
+                item.photo_id
+            )
+        )
+
+        if photo:
+            results.append(photo)
+
     return {
         "album": album,
-        "photos": photos
+        "photo_count":
+        len(results),
+
+        "photos":
+        results
     }
 
 
@@ -220,6 +299,52 @@ def remove_photo_from_album(
         get_db
     )
 ):
+    
+
+
+    album = (
+        AlbumRepository.get_by_id(
+            db,
+            album_id
+        )
+    )
+
+    if not album:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Album not found"
+        )
+
+    if album.user_id != current_user["sub"]:
+
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
+    
+
+
+    photo = (
+        PhotoRepository.get_by_id(
+            db,
+            photo_id
+        )
+    )
+
+    if not photo:
+
+        raise HTTPException(
+            status_code=404,
+            detail="Photo not found"
+        )
+
+    if photo.user_id != current_user["sub"]:
+
+        raise HTTPException(
+            status_code=403,
+            detail="Access denied"
+        )
 
     AlbumPhotoRepository.remove_photo(
         db,
